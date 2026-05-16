@@ -79,8 +79,12 @@ class UnityVersion:
         self.use_payload_extraction = False
 
         downloadurl_splices = downloadurl.split("/")
+        if len(downloadurl_splices) <= 4:
+            logger.debug_msg(f"{self.version.to_string_without_type()} - {downloadurl}")
+            return
+
         if self.version < ParsedUnityVersion.parse("5.3.99") or downloadurl_splices[4].endswith(".exe"):
-            logger.debug_msg(f"{self.version.to_string_without_type()} - {self.download_url}")
+            logger.debug_msg(f"{self.version.to_string_without_type()} - {downloadurl}")
             return
 
         self.use_payload_extraction = True

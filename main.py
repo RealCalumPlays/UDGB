@@ -156,6 +156,9 @@ def extract_files_from_archive(version) -> bool:
         shutil.move(str(filepath), str(new_path / filepath.name))
 
     root_folders = list(Path(temp_folder_path).glob(rootpath))
+    if len(root_folders) <= 0:
+        logger.error(f"Failed to Find Root Folder with Pattern: {rootpath}")
+        return False
     root_folder = root_folders[0]
     logger.msg(f"Removing {root_folder}")
     shutil.rmtree(root_folder)
@@ -210,7 +213,10 @@ def process_unity_version(version) -> bool:
 
     payload_path = BASE_DIR / "Payload~"
     if payload_path.exists():
-        payload_path.unlink()
+        if payload_path.is_dir():
+            shutil.rmtree(payload_path)
+        else:
+            payload_path.unlink()
 
     if was_error:
         return False
@@ -232,7 +238,7 @@ def program_main(args) -> int:
     if cache_file.exists():
         cache_file.unlink()
 
-    if (len(args) < 1) or (len(args) > 2) or (not args[0]):
+    if len(args) < 1 or len(args) > 2 or not args[0]:
         logger.error("Bad arguments for extractor process; expected arguments: <unityVersion>")
         return -1
 

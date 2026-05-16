@@ -1,4 +1,5 @@
 import sys
+import atexit
 from pathlib import Path
 
 
@@ -12,6 +13,16 @@ if SHOULD_LOG_TO_FILE:
     if output_log.exists():
         output_log.unlink()
     _LOG_FILE = output_log.open("w", encoding="utf-8")
+
+
+def _close_log_file() -> None:
+    global _LOG_FILE
+    if _LOG_FILE is not None and not _LOG_FILE.closed:
+        _LOG_FILE.close()
+    _LOG_FILE = None
+
+
+atexit.register(_close_log_file)
 
 
 def _write_file(message: str) -> None:
