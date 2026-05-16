@@ -1,4 +1,7 @@
 import subprocess
+import platform
+import shutil
+from typing import Optional
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -9,6 +12,28 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 class ArchiveHandler:
+    @staticmethod
+    def _resolve_seven_zip() -> Optional[str]:
+        if platform.system() == "Linux":
+            seven_zip = shutil.which("7z")
+            if not seven_zip:
+                logger.error(
+                    "7z binary not found in PATH. Install 7z (for example via the p7zip package) and retry."
+                )
+            return seven_zip
+
+        seven_zip = BASE_DIR / "7z" / "7z.exe"
+        if seven_zip.exists():
+            return str(seven_zip)
+
+        path_seven_zip = shutil.which("7z")
+        if path_seven_zip:
+            return path_seven_zip
+
+        logger.error(f"Bundled 7z binary was not found at: {seven_zip}")
+        logger.error("7z binary not found in PATH.")
+        return None
+
     @staticmethod
     def create_zip(input_folder: str, output_file: str) -> None:
         output_path = Path(output_file)
@@ -23,9 +48,12 @@ class ArchiveHandler:
 
     @staticmethod
     def extract_files(output_path: str, archive_path: str, internal_path: str, keep_file_path: bool = False) -> bool:
-        seven_zip = BASE_DIR / "7z" / "7z.exe"
+        seven_zip = ArchiveHandler._resolve_seven_zip()
+        if not seven_zip:
+            return False
+
         args = [
-            str(seven_zip),
+            seven_zip,
             "x" if keep_file_path else "e",
             str(archive_path),
             "-y",
@@ -33,7 +61,7 @@ class ArchiveHandler:
             str(internal_path),
         ]
 
-        logger.debug_msg("\"" + str(seven_zip) + "\" " + " ".join(args[1:]))
+        logger.debug_msg("\"" + seven_zip + "\" " + " ".join(args[1:]))
 
         process = subprocess.Popen(
             args,
