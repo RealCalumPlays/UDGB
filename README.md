@@ -5,7 +5,7 @@
 [Unity-Runtime-Libraries](https://github.com/LavaGang/Unity-Runtime-Libraries)  
 [Unity-Libraries](https://github.com/LavaGang/Unity-Libraries)
 
-- USAGE: "udgb.exe <Unity_Version>"
+- USAGE: "python3 main.py <Unity_Version>"
 
 ---
 
