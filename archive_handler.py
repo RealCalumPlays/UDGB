@@ -18,15 +18,21 @@ class ArchiveHandler:
             seven_zip = shutil.which("7z")
             if not seven_zip:
                 logger.error(
-                    "7z binary not found in PATH. Install 7z or p7zip (e.g. sudo apt install p7zip-full)."
+                    "7z binary not found in PATH. Install 7z (for example via the p7zip package) and retry."
                 )
             return seven_zip
 
         seven_zip = BASE_DIR / "7z" / "7z.exe"
-        if not seven_zip.exists():
-            logger.error(f"Bundled 7z binary was not found at: {seven_zip}")
-            return None
-        return str(seven_zip)
+        if seven_zip.exists():
+            return str(seven_zip)
+
+        path_seven_zip = shutil.which("7z")
+        if path_seven_zip:
+            return path_seven_zip
+
+        logger.error(f"Bundled 7z binary was not found at: {seven_zip}")
+        logger.error("7z binary not found in PATH.")
+        return None
 
     @staticmethod
     def create_zip(input_folder: str, output_file: str) -> None:
